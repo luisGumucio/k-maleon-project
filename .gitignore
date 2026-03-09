@@ -1,0 +1,16 @@
+# Claude Code worktrees (repos Git anidados que rompen CI/CD)
+.claude/worktrees/
+
+# Backend
+backend/build/
+backend/bin/
+backend/.gradle/
+backend/.env
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# OS
+.DS_Store
