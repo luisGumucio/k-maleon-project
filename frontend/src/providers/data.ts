@@ -1,12 +1,20 @@
 import { DataProvider } from "@refinedev/core";
 import { API_URL } from "./constants";
+import { getToken } from "./auth";
 
 export const apiUrl = `${API_URL}/api`;
 
 export async function fetchJson(url: string, options?: RequestInit) {
+  const token = getToken();
+  const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
+
   const response = await fetch(url, {
-    headers: { "Content-Type": "application/json" },
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeader,
+      ...(options?.headers ?? {}),
+    },
   });
   if (!response.ok) {
     const error = await response.text();

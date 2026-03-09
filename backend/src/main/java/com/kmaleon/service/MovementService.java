@@ -45,7 +45,7 @@ public class MovementService {
             Operation operation = operationRepository.findById(request.getOperationId())
                     .orElseThrow(() -> new ResourceNotFoundException("Operation not found: " + request.getOperationId()));
 
-            Account account = accountService.getAccount();
+            Account account = accountService.getAccount(operation.getOwnerId());
 
             AccountMovement movement = new AccountMovement();
             movement.setOperation(operation);

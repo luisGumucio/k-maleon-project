@@ -15,6 +15,9 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "owner_id")
+    private UUID ownerId;
+
     @Column(nullable = false)
     private Long balance = 0L;
 
@@ -28,6 +31,9 @@ public class Account {
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
+
+    public UUID getOwnerId() { return ownerId; }
+    public void setOwnerId(UUID ownerId) { this.ownerId = ownerId; }
 
     public Long getBalance() { return balance; }
     public void setBalance(Long balance) { this.balance = balance; }

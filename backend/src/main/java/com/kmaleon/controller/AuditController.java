@@ -1,8 +1,10 @@
 package com.kmaleon.controller;
 
 import com.kmaleon.model.AuditLog;
+import com.kmaleon.security.Roles;
 import com.kmaleon.service.AuditService;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.OffsetDateTime;
@@ -10,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/audit-log")
+@PreAuthorize(Roles.ADMIN_OR_SUPER)
 public class AuditController {
 
     private final AuditService auditService;

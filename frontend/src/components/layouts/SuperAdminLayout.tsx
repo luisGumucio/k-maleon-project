@@ -14,6 +14,7 @@ import { RefineKbar } from "@refinedev/kbar";
 import { Outlet, Route, Routes } from "react-router";
 import { Header } from "../header";
 import { dataProvider } from "../../providers/data";
+import { authProvider } from "../../providers/auth";
 import { i18nProvider } from "../../i18n/provider";
 import { SuperAdminDashboard } from "../../pages/super/dashboard";
 import { UserList } from "../../pages/users/list";
@@ -23,6 +24,7 @@ export const SuperAdminLayout: React.FC = () => {
   return (
     <Refine
       dataProvider={dataProvider}
+      authProvider={authProvider}
       i18nProvider={i18nProvider}
       notificationProvider={useNotificationProvider}
       routerProvider={routerProvider}

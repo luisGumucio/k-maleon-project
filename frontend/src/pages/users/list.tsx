@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Form,
@@ -14,108 +14,151 @@ import {
   message,
 } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { fetchJson, apiUrl } from "../../providers/data";
 
 const { useBreakpoint } = Grid;
 
-type UserRole = "super_admin" | "admin" | "inventory_admin" | "almacenero";
+type UserRole = "super_admin" | "admin" | "inventory_admin" | "almacenero" | "encargado_sucursal";
 
 type AppUser = {
-  id: number;
+  id: string;
   name: string;
   email: string;
   role: UserRole;
   createdAt: string;
 };
 
-const ROLE_OPTIONS: { label: string; value: UserRole }[] = [
+const ALL_ROLE_OPTIONS: { label: string; value: UserRole }[] = [
   { label: "Super Admin", value: "super_admin" },
   { label: "Admin", value: "admin" },
   { label: "Inventory Admin", value: "inventory_admin" },
   { label: "Almacenero", value: "almacenero" },
+  { label: "Encargado de Sucursal", value: "encargado_sucursal" },
 ];
 
-const ROLE_COLORS: Record<UserRole, string> = {
+const ROLE_COLORS: Record<string, string> = {
   super_admin: "red",
   admin: "blue",
   inventory_admin: "green",
   almacenero: "default",
+  encargado_sucursal: "orange",
 };
-
-let nextId = 1;
 
 export const UserList = () => {
   const screens = useBreakpoint();
   const isMobile = !screens.md;
 
+  const currentRole = localStorage.getItem("kmaleon_role") ?? "admin";
+  const isInventoryAdmin = currentRole === "inventory_admin";
+
   const [data, setData] = useState<AppUser[]>([]);
+  const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<AppUser | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
+
+  const selectedRole = Form.useWatch("role", form);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const result = await fetchJson(`${apiUrl}/users`);
+      setData(Array.isArray(result) ? result : result.content ?? []);
+    } catch {
+      message.error("Error al cargar usuarios");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const openCreate = () => {
     setEditing(null);
     form.resetFields();
+    if (isInventoryAdmin) {
+      form.setFieldValue("role", "almacenero");
+    }
     setModalOpen(true);
   };
 
   const openEdit = (record: AppUser) => {
     setEditing(record);
-    form.setFieldsValue({ name: record.name, email: record.email, role: record.role });
+    form.setFieldsValue({ name: record.name });
     setModalOpen(true);
   };
 
-  const handleSubmit = (values: {
+  const handleSubmit = async (values: {
     name: string;
-    email: string;
-    role: UserRole;
+    email?: string;
+    role?: UserRole;
     password?: string;
+    locationId?: string;
+    newPassword?: string;
   }) => {
-    if (editing) {
-      setData((prev) =>
-        prev.map((u) =>
-          u.id === editing.id
-            ? { ...u, name: values.name, email: values.email, role: values.role }
-            : u
-        )
-      );
-      message.success("Usuario actualizado");
-    } else {
-      setData((prev) => [
-        ...prev,
-        {
-          id: nextId++,
-          name: values.name,
-          email: values.email,
-          role: values.role,
-          createdAt: new Date().toISOString(),
-        },
-      ]);
-      message.success("Usuario creado");
+    setSubmitting(true);
+    try {
+      if (editing) {
+        const body: Record<string, string> = { name: values.name };
+        if (values.newPassword) body.password = values.newPassword;
+        await fetchJson(`${apiUrl}/users/${editing.id}`, {
+          method: "PUT",
+          body: JSON.stringify(body),
+        });
+        message.success("Usuario actualizado");
+      } else {
+        const body: Record<string, string> = {
+          name: values.name!,
+          email: values.email!,
+          password: values.password!,
+          role: isInventoryAdmin ? "almacenero" : values.role!,
+        };
+        if (values.locationId) body.locationId = values.locationId;
+        await fetchJson(`${apiUrl}/users`, {
+          method: "POST",
+          body: JSON.stringify(body),
+        });
+        message.success("Usuario creado");
+      }
+      setModalOpen(false);
+      fetchUsers();
+    } catch (err: unknown) {
+      message.error(err instanceof Error ? err.message : "Error al guardar usuario");
+    } finally {
+      setSubmitting(false);
     }
-    setModalOpen(false);
   };
 
-  const handleDelete = (id: number) => {
-    setData((prev) => prev.filter((u) => u.id !== id));
-    message.success("Usuario eliminado");
+  const handleDelete = async (id: string) => {
+    try {
+      await fetchJson(`${apiUrl}/users/${id}`, { method: "DELETE" });
+      message.success("Usuario eliminado");
+      setData((prev) => prev.filter((u) => u.id !== id));
+    } catch {
+      message.error("Error al eliminar usuario");
+    }
   };
 
   const columns = [
     { title: "Nombre", dataIndex: "name", key: "name" },
-    { title: "Email", dataIndex: "email", key: "email" },
+    { title: "Email", dataIndex: "email", key: "email", responsive: ["md"] as ("md")[] },
     {
       title: "Rol",
       dataIndex: "role",
       key: "role",
-      render: (role: UserRole) => (
-        <Tag color={ROLE_COLORS[role]}>{role}</Tag>
+      render: (role: string) => (
+        <Tag color={ROLE_COLORS[role] ?? "default"}>{role}</Tag>
       ),
     },
     {
       title: "Fecha de creación",
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (val: string) => new Date(val).toLocaleDateString("es-CL"),
+      responsive: ["lg"] as ("lg")[],
+      render: (val: string) => val ? new Date(val).toLocaleDateString("es-CL") : "—",
     },
     {
       title: "Acciones",
@@ -129,6 +172,7 @@ export const UserList = () => {
           />
           <Popconfirm
             title="¿Eliminar usuario?"
+            description="Esta acción desactivará al usuario."
             onConfirm={() => handleDelete(record.id)}
             okText="Sí"
             cancelText="No"
@@ -139,6 +183,10 @@ export const UserList = () => {
       ),
     },
   ];
+
+  const roleOptions = isInventoryAdmin
+    ? ALL_ROLE_OPTIONS.filter((r) => r.value === "almacenero")
+    : ALL_ROLE_OPTIONS;
 
   return (
     <div style={{ padding: isMobile ? 16 : 24 }}>
@@ -162,6 +210,7 @@ export const UserList = () => {
         dataSource={data}
         columns={columns}
         rowKey="id"
+        loading={loading}
         size={isMobile ? "small" : "middle"}
         pagination={{ pageSize: 10 }}
         locale={{ emptyText: "No hay usuarios registrados" }}
@@ -174,6 +223,7 @@ export const UserList = () => {
         onOk={() => form.submit()}
         okText="Guardar"
         cancelText="Cancelar"
+        confirmLoading={submitting}
         destroyOnClose
         width={isMobile ? "100%" : 420}
       >
@@ -185,30 +235,56 @@ export const UserList = () => {
           >
             <Input placeholder="Nombre completo" />
           </Form.Item>
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[
-              { required: true, message: "Ingresa el email" },
-              { type: "email", message: "Email inválido" },
-            ]}
-          >
-            <Input placeholder="correo@ejemplo.com" />
-          </Form.Item>
-          <Form.Item
-            label="Rol"
-            name="role"
-            rules={[{ required: true, message: "Selecciona un rol" }]}
-          >
-            <Select options={ROLE_OPTIONS} placeholder="Selecciona un rol" />
-          </Form.Item>
+
           {!editing && (
+            <>
+              <Form.Item
+                label="Email"
+                name="email"
+                rules={[
+                  { required: true, message: "Ingresa el email" },
+                  { type: "email", message: "Email inválido" },
+                ]}
+              >
+                <Input placeholder="correo@ejemplo.com" />
+              </Form.Item>
+
+              <Form.Item
+                label="Contraseña"
+                name="password"
+                rules={[{ required: true, message: "Ingresa la contraseña" }]}
+              >
+                <Input.Password placeholder="Contraseña" />
+              </Form.Item>
+
+              {!isInventoryAdmin && (
+                <Form.Item
+                  label="Rol"
+                  name="role"
+                  rules={[{ required: true, message: "Selecciona un rol" }]}
+                >
+                  <Select options={roleOptions} placeholder="Selecciona un rol" />
+                </Form.Item>
+              )}
+
+              {selectedRole === "encargado_sucursal" && (
+                <Form.Item
+                  label="Sucursal"
+                  name="locationId"
+                  rules={[{ required: true, message: "Selecciona la sucursal" }]}
+                >
+                  <Input placeholder="ID de la sucursal" />
+                </Form.Item>
+              )}
+            </>
+          )}
+
+          {editing && (
             <Form.Item
-              label="Contraseña"
-              name="password"
-              rules={[{ required: true, message: "Ingresa la contraseña" }]}
+              label="Nueva contraseña (opcional)"
+              name="newPassword"
             >
-              <Input.Password placeholder="Contraseña" />
+              <Input.Password placeholder="Dejar vacío para no cambiar" />
             </Form.Item>
           )}
         </Form>

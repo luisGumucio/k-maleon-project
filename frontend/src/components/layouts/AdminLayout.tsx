@@ -16,6 +16,7 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Outlet, Route, Routes } from "react-router";
 import { Header } from "../header";
 import { dataProvider } from "../../providers/data";
+import { authProvider } from "../../providers/auth";
 import { i18nProvider } from "../../i18n/provider";
 import { useRole } from "../../contexts/role";
 import { AdminDashboard } from "../../pages/admin/dashboard";
@@ -60,6 +61,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   return (
     <Refine
       dataProvider={dataProvider}
+      authProvider={authProvider}
       i18nProvider={i18nProvider}
       notificationProvider={useNotificationProvider}
       routerProvider={routerProvider}

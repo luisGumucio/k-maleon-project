@@ -7,12 +7,14 @@ import com.kmaleon.model.Shipment;
 import com.kmaleon.model.Supplier;
 import com.kmaleon.repository.ShipmentRepository;
 import com.kmaleon.repository.SupplierRepository;
-import java.time.LocalDate;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -28,24 +30,31 @@ public class ShipmentService {
         this.supplierRepository = supplierRepository;
     }
 
-    public List<ShipmentResponse> findAll(UUID supplierId, String containerNumber, LocalDate from, LocalDate to) {
-        return shipmentRepository.findAll(buildSpec(supplierId, containerNumber, from, to)).stream()
+    public List<ShipmentResponse> findAll(UUID callerId, String callerRole,
+                                          UUID supplierId, String containerNumber,
+                                          LocalDate from, LocalDate to) {
+        UUID ownerFilter = "super_admin".equals(callerRole) ? null : callerId;
+        return shipmentRepository.findAll(buildSpec(ownerFilter, supplierId, containerNumber, from, to)).stream()
                 .map(ShipmentResponse::from)
                 .toList();
     }
 
-    public ShipmentResponse findById(UUID id) {
-        return shipmentRepository.findById(id)
-                .map(ShipmentResponse::from)
+    public ShipmentResponse findById(UUID id, UUID callerId, String callerRole) {
+        Shipment shipment = shipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found: " + id));
+        if (!"super_admin".equals(callerRole) && !callerId.equals(shipment.getOwnerId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes acceso a este rastreo");
+        }
+        return ShipmentResponse.from(shipment);
     }
 
     @Transactional
-    public ShipmentResponse create(ShipmentRequest request) {
+    public ShipmentResponse create(UUID callerId, ShipmentRequest request) {
         Supplier supplier = supplierRepository.findById(request.getSupplierId())
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier not found: " + request.getSupplierId()));
 
         Shipment shipment = new Shipment();
+        shipment.setOwnerId(callerId);
         shipment.setSupplier(supplier);
         applyFields(shipment, request);
 
@@ -53,9 +62,12 @@ public class ShipmentService {
     }
 
     @Transactional
-    public ShipmentResponse update(UUID id, ShipmentRequest request) {
+    public ShipmentResponse update(UUID id, UUID callerId, String callerRole, ShipmentRequest request) {
         Shipment shipment = shipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found: " + id));
+        if (!"super_admin".equals(callerRole) && !callerId.equals(shipment.getOwnerId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes acceso a este rastreo");
+        }
 
         if (!shipment.getSupplier().getId().equals(request.getSupplierId())) {
             Supplier supplier = supplierRepository.findById(request.getSupplierId())
@@ -68,9 +80,11 @@ public class ShipmentService {
     }
 
     @Transactional
-    public void delete(UUID id) {
-        if (!shipmentRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Shipment not found: " + id);
+    public void delete(UUID id, UUID callerId, String callerRole) {
+        Shipment shipment = shipmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Shipment not found: " + id));
+        if (!"super_admin".equals(callerRole) && !callerId.equals(shipment.getOwnerId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes acceso a este rastreo");
         }
         shipmentRepository.deleteById(id);
     }
@@ -86,9 +100,11 @@ public class ShipmentService {
         }
     }
 
-    private Specification<Shipment> buildSpec(UUID supplierId, String containerNumber, LocalDate from, LocalDate to) {
+    private Specification<Shipment> buildSpec(UUID ownerId, UUID supplierId,
+                                               String containerNumber, LocalDate from, LocalDate to) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            if (ownerId != null) predicates.add(cb.equal(root.get("ownerId"), ownerId));
             if (supplierId != null) predicates.add(cb.equal(root.get("supplier").get("id"), supplierId));
             if (containerNumber != null && !containerNumber.isBlank())
                 predicates.add(cb.like(cb.lower(root.get("containerNumber")), "%" + containerNumber.toLowerCase() + "%"));

@@ -1,13 +1,17 @@
 import type { RefineThemedLayoutHeaderProps } from "@refinedev/antd";
-import { useGetIdentity } from "@refinedev/core";
+import { useGetIdentity, useLogout } from "@refinedev/core";
 import {
   Layout as AntdLayout,
   Avatar,
+  Button,
+  Popconfirm,
   Space,
   Switch,
+  Tag,
   theme,
   Typography,
 } from "antd";
+import { LogoutOutlined } from "@ant-design/icons";
 import React, { useContext } from "react";
 import { ColorModeContext } from "../../contexts/color-mode";
 
@@ -15,9 +19,16 @@ const { Text } = Typography;
 const { useToken } = theme;
 
 type IUser = {
-  id: number;
   name: string;
-  avatar: string;
+  role: string;
+};
+
+const ROLE_LABELS: Record<string, string> = {
+  super_admin: "Super Admin",
+  admin: "Admin",
+  inventory_admin: "Inv. Admin",
+  almacenero: "Almacenero",
+  encargado_sucursal: "Encargado",
 };
 
 export const Header: React.FC<RefineThemedLayoutHeaderProps> = ({
@@ -26,6 +37,7 @@ export const Header: React.FC<RefineThemedLayoutHeaderProps> = ({
   const { token } = useToken();
   const { data: user } = useGetIdentity<IUser>();
   const { mode, setMode } = useContext(ColorModeContext);
+  const { mutate: logout } = useLogout();
 
   const headerStyles: React.CSSProperties = {
     backgroundColor: token.colorBgElevated,
@@ -53,7 +65,20 @@ export const Header: React.FC<RefineThemedLayoutHeaderProps> = ({
         />
         <Space style={{ marginLeft: "8px" }} size="middle">
           {user?.name && <Text strong>{user.name}</Text>}
-          {user?.avatar && <Avatar src={user?.avatar} alt={user?.name} />}
+          {user?.role && (
+            <Tag color="blue">{ROLE_LABELS[user.role] ?? user.role}</Tag>
+          )}
+          <Avatar style={{ backgroundColor: token.colorPrimary }}>
+            {user?.name?.[0]?.toUpperCase() ?? "U"}
+          </Avatar>
+          <Popconfirm
+            title="¿Cerrar sesión?"
+            onConfirm={() => logout()}
+            okText="Sí"
+            cancelText="No"
+          >
+            <Button icon={<LogoutOutlined />} type="text" danger />
+          </Popconfirm>
         </Space>
       </Space>
     </AntdLayout.Header>

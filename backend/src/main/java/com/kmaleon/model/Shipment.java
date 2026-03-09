@@ -16,6 +16,9 @@ public class Shipment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "owner_id")
+    private UUID ownerId;
+
     @Column(insertable = false, updatable = false)
     private Integer number;
 
@@ -50,6 +53,9 @@ public class Shipment {
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
+
+    public UUID getOwnerId() { return ownerId; }
+    public void setOwnerId(UUID ownerId) { this.ownerId = ownerId; }
 
     public Integer getNumber() { return number; }
 

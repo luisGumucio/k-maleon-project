@@ -178,14 +178,22 @@
 **Objetivo:** Backend funcionando en producción.
 
 ### Tasks
-- [ ] Crear proyecto en Railway conectado al repo `k-maleon-backend`
-- [ ] Configurar variables de entorno en Railway dashboard
-- [ ] Verificar auto-deploy desde `main`
-- [ ] Probar todos los endpoints contra la URL de producción
+- [x] Crear proyecto en Railway conectado al repo `k-maleon-backend`
+- [x] Configurar variables de entorno en Railway dashboard
+- [x] Verificar auto-deploy desde `main`
+- [x] Probar todos los endpoints contra la URL de producción
+
+### Notas de deploy
+- **Problema resuelto:** Railway no podía conectar a Supabase por puerto 5432 (bloqueado para IPs externas)
+- **Solución:** Usar el **Transaction Pooler** de Supabase (puerto 6543, host `aws-0-REGION.pooler.supabase.com`)
+- El `DB_USER` en pooler tiene formato `postgres.PROJECT_REF`
+- Se removió `PostgreSQLDialect` explícito (Hibernate 6 lo detecta automáticamente)
+- HikariCP configurado con pool pequeño (max 5) compatible con pgBouncer transaction mode
 
 ### Validación
-- [ ] `GET https://<railway-url>/api/account/balance` responde correctamente
-- [ ] Los logs en Railway muestran las operaciones financieras
+- [x] `GET https://<railway-url>/api/account/balance` responde correctamente
+- [x] Endpoints responden desde Postman contra URL de producción
+- [x] Los logs en Railway muestran arranque exitoso
 
 ---
 
@@ -196,3 +204,9 @@ Fase 1 → Fase 2 → Fase 3 → Fase 4 → Fase 5 → Fase 6 → Fase 7 → Fas
 ```
 
 Cada fase debe estar funcionando antes de avanzar a la siguiente.
+
+---
+
+## Siguiente feature
+
+**Autenticación y Roles** → ver `docs/backend/plan-auth.md`

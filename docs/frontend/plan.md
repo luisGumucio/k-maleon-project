@@ -183,3 +183,9 @@ Fase 1 → Fase 2 → Fase 3 → Fase 4 → Fase 5 → Fase 6 → Fase 7
 ```
 
 > Prerequisito: Backend debe estar en Fase 6 (controladores funcionando) antes de iniciar Fase 3+.
+
+---
+
+## Siguiente feature
+
+**Autenticación y Roles** → ver `docs/frontend/plan-auth.md`

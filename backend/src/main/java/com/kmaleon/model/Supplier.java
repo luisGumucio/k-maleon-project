@@ -14,6 +14,9 @@ public class Supplier {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "owner_id")
+    private UUID ownerId;
+
     @Column(nullable = false, length = 200)
     private String name;
 
@@ -32,6 +35,9 @@ public class Supplier {
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
+
+    public UUID getOwnerId() { return ownerId; }
+    public void setOwnerId(UUID ownerId) { this.ownerId = ownerId; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
