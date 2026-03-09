@@ -18,6 +18,41 @@
       "key": "shipmentItemId",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "unitId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fromUnitId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "toUnitId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "conversionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "locationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "itemId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "transferRequestId",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -488,6 +523,400 @@
               "raw": "{{baseUrl}}/api/shipment-items/{{shipmentItemId}}",
               "host": ["{{baseUrl}}"],
               "path": ["api", "shipment-items", "{{shipmentItemId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Units",
+      "item": [
+        {
+          "name": "List Units",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/units",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "units"]
+            }
+          }
+        },
+        {
+          "name": "Create Unit",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/units",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "units"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"kilo\",\n  \"symbol\": \"kg\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Delete Unit",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/units/{{unitId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "units", "{{unitId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Locations",
+      "item": [
+        {
+          "name": "List Locations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/locations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "locations"],
+              "query": [
+                { "key": "type", "value": "warehouse", "disabled": true },
+                { "key": "type", "value": "branch", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Location",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/locations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "locations"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bodega Central\",\n  \"type\": \"warehouse\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Update Location",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/locations/{{locationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "locations", "{{locationId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bodega Central Actualizada\",\n  \"type\": \"warehouse\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Delete Location (soft)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/locations/{{locationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "locations", "{{locationId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Items",
+      "item": [
+        {
+          "name": "List Items",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items"],
+              "query": [
+                { "key": "active", "value": "true", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Arroz\",\n  \"baseUnitId\": \"{{unitId}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Update Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/{{itemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "{{itemId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Arroz Largo\",\n  \"baseUnitId\": \"{{unitId}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Delete Item (soft)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/items/{{itemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "{{itemId}}"]
+            }
+          }
+        },
+        {
+          "name": "List Conversions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/items/{{itemId}}/conversions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "{{itemId}}", "conversions"]
+            }
+          }
+        },
+        {
+          "name": "Add Conversion",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/{{itemId}}/conversions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "{{itemId}}", "conversions"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromUnitId\": \"{{fromUnitId}}\",\n  \"toUnitId\": \"{{toUnitId}}\",\n  \"factor\": 200\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Delete Conversion",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/items/{{itemId}}/conversions/{{conversionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "{{itemId}}", "conversions", "{{conversionId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inventory",
+      "item": [
+        {
+          "name": "Get Stock",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/inventory/stock",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventory", "stock"]
+            }
+          }
+        },
+        {
+          "name": "Register Purchase",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/inventory/purchase",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventory", "purchase"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemId\": \"{{itemId}}\",\n  \"unitId\": \"{{unitId}}\",\n  \"quantity\": 10,\n  \"notes\": \"Compra inicial\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Register Transfer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/inventory/transfer",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventory", "transfer"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemId\": \"{{itemId}}\",\n  \"unitId\": \"{{unitId}}\",\n  \"quantity\": 5,\n  \"locationToId\": \"{{locationId}}\",\n  \"notes\": \"Transferencia a sucursal\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Register Consumption",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/inventory/consumption",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventory", "consumption"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemId\": \"{{itemId}}\",\n  \"unitId\": \"{{unitId}}\",\n  \"quantity\": 2,\n  \"locationId\": \"{{locationId}}\",\n  \"notes\": \"Consumo diario\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Register Adjustment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/inventory/adjustment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventory", "adjustment"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemId\": \"{{itemId}}\",\n  \"locationId\": \"{{locationId}}\",\n  \"unitId\": \"{{unitId}}\",\n  \"quantity\": -3,\n  \"notes\": \"Corrección por conteo físico\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "List Movements",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/inventory/movements",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventory", "movements"],
+              "query": [
+                { "key": "type", "value": "purchase", "disabled": true },
+                { "key": "itemId", "value": "{{itemId}}", "disabled": true },
+                { "key": "locationId", "value": "{{locationId}}", "disabled": true },
+                { "key": "from", "value": "2026-01-01", "disabled": true },
+                { "key": "to", "value": "2026-12-31", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Transfer Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/inventory/transfer-request",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventory", "transfer-request"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemId\": \"{{itemId}}\",\n  \"unitId\": \"{{unitId}}\",\n  \"quantity\": 3,\n  \"locationId\": \"{{locationId}}\",\n  \"notes\": \"Necesitamos restock urgente\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "List Pending Requests",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/inventory/requests",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventory", "requests"]
+            }
+          }
+        },
+        {
+          "name": "Complete Transfer Request",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/inventory/requests/{{transferRequestId}}/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventory", "requests", "{{transferRequestId}}", "complete"]
+            }
+          }
+        },
+        {
+          "name": "Reject Transfer Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/inventory/requests/{{transferRequestId}}/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventory", "requests", "{{transferRequestId}}", "reject"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Sin stock disponible en bodega\"\n}",
+              "options": { "raw": { "language": "json" } }
             }
           }
         }

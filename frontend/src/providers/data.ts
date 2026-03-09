@@ -12,8 +12,9 @@ export async function fetchJson(url: string, options?: RequestInit) {
     const error = await response.text();
     throw new Error(error || response.statusText);
   }
-  if (response.status === 204) return null;
-  return response.json();
+  if (response.status === 204 || response.headers.get("content-length") === "0") return null;
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
 }
 
 export const dataProvider: DataProvider = {
