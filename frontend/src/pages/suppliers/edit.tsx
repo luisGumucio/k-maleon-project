@@ -1,11 +1,11 @@
-import { Create, useForm } from "@refinedev/antd";
+import { Edit, useForm } from "@refinedev/antd";
 import { Form, Input } from "antd";
 
-export const SupplierCreate = () => {
+export const SupplierEdit = () => {
   const { formProps, saveButtonProps } = useForm();
 
   return (
-    <Create saveButtonProps={saveButtonProps}>
+    <Edit saveButtonProps={saveButtonProps}>
       <Form {...formProps} layout="vertical">
         <Form.Item
           label="Nombre"
@@ -25,6 +25,6 @@ export const SupplierCreate = () => {
           <Input placeholder="+52 55 1234 5678" />
         </Form.Item>
       </Form>
-    </Create>
+    </Edit>
   );
 };

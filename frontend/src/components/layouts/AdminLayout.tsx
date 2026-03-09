@@ -19,7 +19,7 @@ import { dataProvider } from "../../providers/data";
 import { i18nProvider } from "../../i18n/provider";
 import { useRole } from "../../contexts/role";
 import { AdminDashboard } from "../../pages/admin/dashboard";
-import { SupplierCreate, SupplierList } from "../../pages/suppliers";
+import { SupplierCreate, SupplierEdit, SupplierList } from "../../pages/suppliers";
 import {
   OperationList,
   OperationShow,
@@ -78,6 +78,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           name: "suppliers",
           list: "/suppliers",
           create: "/suppliers/create",
+          edit: "/suppliers/edit/:id",
           meta: { label: "Proveedores" },
         },
         {
@@ -142,6 +143,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           <Route path="/suppliers">
             <Route index element={<SupplierList />} />
             <Route path="create" element={<SupplierCreate />} />
+            <Route path="edit/:id" element={<SupplierEdit />} />
           </Route>
           <Route path="/operations">
             <Route index element={<OperationList />} />
