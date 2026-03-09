@@ -1,22 +1,18 @@
 import { Create, useForm } from "@refinedev/antd";
 import { Form, Input } from "antd";
 
-export const CategoryCreate = () => {
-  const { formProps, saveButtonProps } = useForm({});
+export const SupplierCreate = () => {
+  const { formProps, saveButtonProps } = useForm();
 
   return (
     <Create saveButtonProps={saveButtonProps}>
       <Form {...formProps} layout="vertical">
         <Form.Item
-          label={"Title"}
-          name={["title"]}
-          rules={[
-            {
-              required: true,
-            },
-          ]}
+          label="Nombre"
+          name="name"
+          rules={[{ required: true, message: "El nombre es requerido" }]}
         >
-          <Input />
+          <Input placeholder="Nombre del proveedor" />
         </Form.Item>
       </Form>
     </Create>

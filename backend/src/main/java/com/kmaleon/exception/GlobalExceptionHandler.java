@@ -55,6 +55,18 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ErrorResponse.builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .error("Bad Request")
+                        .message(ex.getMessage())
+                        .timestamp(OffsetDateTime.now())
+                        .build()
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(

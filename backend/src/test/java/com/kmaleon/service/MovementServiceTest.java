@@ -42,6 +42,9 @@ class MovementServiceTest {
     @Mock
     private AuditService auditService;
 
+    @Mock
+    private StorageService storageService;
+
     @InjectMocks
     private MovementService movementService;
 
@@ -130,6 +133,20 @@ class MovementServiceTest {
         assertThat(responses.get(0).getType()).isEqualTo("salida");
     }
 
+    @Test
+    void whenSalidaWithAttachment_succeeds_thenStorageDeleteIsNeverCalled() {
+        MovementRequest request = buildRequest("salida", 200000L);
+        request.setAttachmentUrl("https://supabase.co/storage/v1/object/public/financial-docs/uuid.pdf");
+
+        when(operationRepository.findById(request.getOperationId())).thenReturn(Optional.of(operation));
+        when(accountService.getAccount()).thenReturn(account);
+        when(movementRepository.save(any())).thenAnswer(inv -> withId(inv.getArgument(0)));
+
+        movementService.registerMovement(request);
+
+        verify(storageService, never()).delete(any(), any());
+    }
+
     // -------------------------
     // Error path
     // -------------------------
@@ -156,6 +173,32 @@ class MovementServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class);
 
         verify(movementRepository, never()).save(any());
+    }
+
+    @Test
+    void whenRegistrationFails_andAttachmentUrlPresent_thenDeleteIsCalledOnOrphan() {
+        String attachmentUrl = "https://supabase.co/storage/v1/object/public/financial-docs/uuid.pdf";
+        MovementRequest request = buildRequest("salida", 100000L);
+        request.setAttachmentUrl(attachmentUrl);
+
+        when(operationRepository.findById(request.getOperationId())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> movementService.registerMovement(request))
+                .isInstanceOf(ResourceNotFoundException.class);
+
+        verify(storageService).delete(attachmentUrl, StorageService.BUCKET_FINANCIAL);
+    }
+
+    @Test
+    void whenRegistrationFails_andNoAttachmentUrl_thenDeleteIsNeverCalled() {
+        MovementRequest request = buildRequest("salida", 100000L);
+
+        when(operationRepository.findById(request.getOperationId())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> movementService.registerMovement(request))
+                .isInstanceOf(ResourceNotFoundException.class);
+
+        verify(storageService, never()).delete(any(), any());
     }
 
     // -------------------------
@@ -199,6 +242,19 @@ class MovementServiceTest {
         List<MovementResponse> responses = movementService.findByOperationId(operation.getId());
 
         assertThat(responses).isEmpty();
+    }
+
+    @Test
+    void whenRegistrationFails_andAttachmentUrlIsBlank_thenDeleteIsNeverCalled() {
+        MovementRequest request = buildRequest("salida", 100000L);
+        request.setAttachmentUrl("   ");
+
+        when(operationRepository.findById(request.getOperationId())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> movementService.registerMovement(request))
+                .isInstanceOf(ResourceNotFoundException.class);
+
+        verify(storageService, never()).delete(any(), any());
     }
 
     private MovementRequest buildRequest(String type, Long amount) {

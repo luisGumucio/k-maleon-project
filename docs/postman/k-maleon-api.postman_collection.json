@@ -8,6 +8,16 @@
       "key": "baseUrl",
       "value": "http://localhost:8080",
       "type": "string"
+    },
+    {
+      "key": "shipmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "shipmentItemId",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -239,6 +249,245 @@
               "mode": "raw",
               "raw": "{\n  \"operationId\": \"{{operationId}}\",\n  \"type\": \"salida\",\n  \"paymentType\": \"cash\",\n  \"amount\": 50000,\n  \"currency\": \"USD\",\n  \"date\": \"2026-03-08\",\n  \"description\": \"Pago en efectivo\",\n  \"metadata\": \"{\\\"received_by\\\": \\\"Juan Pérez\\\", \\\"location\\\": \\\"Oficina Iquique\\\"}\"\n}",
               "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attachments",
+      "item": [
+        {
+          "name": "Upload Attachment",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/attachments/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attachments", "upload"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "",
+                  "description": "PDF o imagen del comprobante (máx 10MB)"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Upload exitoso",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"url\": \"https://xxxx.supabase.co/storage/v1/object/public/financial-docs/uuid.pdf\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Shipments",
+      "item": [
+        {
+          "name": "List Shipments",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments"],
+              "query": [
+                { "key": "supplierId", "value": "{{supplierId}}", "disabled": true },
+                { "key": "containerNumber", "value": "CARU5170029", "disabled": true },
+                { "key": "from", "value": "2026-01-01", "disabled": true },
+                { "key": "to", "value": "2026-12-31", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Shipment by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments/{{shipmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments", "{{shipmentId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Shipment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supplierId\": \"{{supplierId}}\",\n  \"departureDate\": \"2026-03-08\",\n  \"containerNumber\": \"CARU5170029\",\n  \"quantity\": 500,\n  \"productDetails\": \"Mercadería electrónica variada\",\n  \"arrivalDate\": null\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "response": [
+            {
+              "name": "Creación exitosa",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"id\": \"uuid\",\n  \"number\": 1,\n  \"supplierId\": \"uuid\",\n  \"supplierName\": \"China Trading Co.\",\n  \"departureDate\": \"2026-03-08\",\n  \"containerNumber\": \"CARU5170029\",\n  \"quantity\": 500,\n  \"productDetails\": \"Mercadería electrónica variada\",\n  \"arrivalDate\": null,\n  \"documentUrl\": null,\n  \"createdAt\": \"2026-03-09T00:00:00Z\",\n  \"updatedAt\": \"2026-03-09T00:00:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Shipment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments/{{shipmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments", "{{shipmentId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supplierId\": \"{{supplierId}}\",\n  \"departureDate\": \"2026-03-08\",\n  \"containerNumber\": \"CARU5170029\",\n  \"quantity\": 500,\n  \"productDetails\": \"Mercadería electrónica variada - actualizado\",\n  \"arrivalDate\": \"2026-06-30\",\n  \"documentUrl\": \"https://xxxx.supabase.co/storage/v1/object/public/container-docs/uuid.pdf\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Delete Shipment",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/shipments/{{shipmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipments", "{{shipmentId}}"]
+            }
+          }
+        },
+        {
+          "name": "Upload Shipment Document",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/attachments/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attachments", "upload"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "",
+                  "description": "BL, factura u otro documento del contenedor (máx 10MB)"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Upload exitoso",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"url\": \"https://xxxx.supabase.co/storage/v1/object/public/container-docs/uuid.pdf\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Shipment Items",
+      "item": [
+        {
+          "name": "Get Shipment Detail (items + total)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/shipment-items?shipmentId={{shipmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipment-items"],
+              "query": [
+                { "key": "shipmentId", "value": "{{shipmentId}}" }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Detalle exitoso",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": \"uuid\",\n  \"number\": 1,\n  \"containerNumber\": \"CARU5170029\",\n  \"supplierName\": \"China Trading Co.\",\n  \"departureDate\": \"2026-03-08\",\n  \"arrivalDate\": null,\n  \"items\": [\n    {\n      \"id\": \"uuid\",\n      \"shipmentId\": \"uuid\",\n      \"containerNumber\": \"CARU5170029\",\n      \"description\": \"Converse mujer\",\n      \"quantity\": 100,\n      \"unitPrice\": 5.00,\n      \"amount\": 500.00\n    }\n  ],\n  \"totalAmount\": 500.00\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Shipment Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/shipment-items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipment-items"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shipmentId\": \"{{shipmentId}}\",\n  \"description\": \"Converse mujer\",\n  \"quantity\": 100,\n  \"unitPrice\": 5.00,\n  \"amount\": 500.00\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "response": [
+            {
+              "name": "Creación exitosa",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"id\": \"uuid\",\n  \"shipmentId\": \"uuid\",\n  \"containerNumber\": \"CARU5170029\",\n  \"description\": \"Converse mujer\",\n  \"quantity\": 100,\n  \"unitPrice\": 5.00,\n  \"amount\": 500.00\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Shipment Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/shipment-items/{{shipmentItemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipment-items", "{{shipmentItemId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shipmentId\": \"{{shipmentId}}\",\n  \"description\": \"Converse mujer actualizado\",\n  \"quantity\": 120,\n  \"unitPrice\": 5.50,\n  \"amount\": 660.00\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Delete Shipment Item",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/shipment-items/{{shipmentItemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "shipment-items", "{{shipmentItemId}}"]
             }
           }
         }
