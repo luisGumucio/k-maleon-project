@@ -1,0 +1,270 @@
+{
+  "info": {
+    "name": "K-Maleon API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Account",
+      "item": [
+        {
+          "name": "Get Balance",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/account/balance",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "account", "balance"]
+            }
+          }
+        },
+        {
+          "name": "Set Initial Balance",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/account/initial-balance",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "account", "initial-balance"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "5000000",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Suppliers",
+      "item": [
+        {
+          "name": "List Suppliers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/suppliers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "suppliers"]
+            }
+          }
+        },
+        {
+          "name": "Create Supplier",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/suppliers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "suppliers"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"China Trading Co.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Operations",
+      "item": [
+        {
+          "name": "List Operations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/operations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "operations"],
+              "query": [
+                { "key": "status", "value": "active", "disabled": true },
+                { "key": "supplierId", "value": "{{supplierId}}", "disabled": true },
+                { "key": "from", "value": "2026-01-01", "disabled": true },
+                { "key": "to", "value": "2026-12-31", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Operation by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/{{operationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "operations", "{{operationId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Operation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/operations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "operations"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supplierId\": \"{{supplierId}}\",\n  \"container\": \"CARU5170029\",\n  \"description\": \"Mercadería electrónica\",\n  \"totalAmount\": 1000000,\n  \"origin\": \"Shanghai\",\n  \"startDate\": \"2026-03-08\",\n  \"endDate\": null,\n  \"notes\": \"\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Update Operation",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/{{operationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "operations", "{{operationId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supplierId\": \"{{supplierId}}\",\n  \"container\": \"CARU5170029\",\n  \"description\": \"Mercadería electrónica - actualizado\",\n  \"totalAmount\": 1200000,\n  \"origin\": \"Shanghai\",\n  \"startDate\": \"2026-03-08\",\n  \"endDate\": \"2026-06-30\",\n  \"status\": \"active\",\n  \"notes\": \"Notas actualizadas\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Movements",
+      "item": [
+        {
+          "name": "List Movements by Operation",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/{{operationId}}/movements",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "operations", "{{operationId}}", "movements"]
+            }
+          }
+        },
+        {
+          "name": "Register Salida (SWIFT)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/movements",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "movements"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operationId\": \"{{operationId}}\",\n  \"type\": \"salida\",\n  \"paymentType\": \"swift\",\n  \"amount\": 200000,\n  \"currency\": \"USD\",\n  \"date\": \"2026-03-08\",\n  \"description\": \"Pago parcial proveedor\",\n  \"metadata\": \"{\\\"message_id\\\": \\\"22591270001\\\", \\\"debtor_bank\\\": \\\"SCOTIABANK CHILE\\\", \\\"creditor_name\\\": \\\"YIWU XUANSHI E-COMERCE FIRM\\\"}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Register Salida (Transfer)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/movements",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "movements"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operationId\": \"{{operationId}}\",\n  \"type\": \"salida\",\n  \"paymentType\": \"transfer\",\n  \"amount\": 150000,\n  \"currency\": \"USD\",\n  \"date\": \"2026-03-08\",\n  \"description\": \"Transferencia bancaria\",\n  \"metadata\": \"{\\\"bank_name\\\": \\\"Banco Estado\\\", \\\"account_number\\\": \\\"123456789\\\", \\\"reference\\\": \\\"TRF-2026-001\\\"}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Register Entrada",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/movements",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "movements"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operationId\": \"{{operationId}}\",\n  \"type\": \"entrada\",\n  \"paymentType\": \"transfer\",\n  \"amount\": 300000,\n  \"currency\": \"USD\",\n  \"date\": \"2026-03-08\",\n  \"description\": \"Ingreso de fondos\",\n  \"metadata\": \"{\\\"bank_name\\\": \\\"Banco Estado\\\", \\\"reference\\\": \\\"ING-2026-001\\\"}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Register Salida (Cash)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/movements",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "movements"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operationId\": \"{{operationId}}\",\n  \"type\": \"salida\",\n  \"paymentType\": \"cash\",\n  \"amount\": 50000,\n  \"currency\": \"USD\",\n  \"date\": \"2026-03-08\",\n  \"description\": \"Pago en efectivo\",\n  \"metadata\": \"{\\\"received_by\\\": \\\"Juan Pérez\\\", \\\"location\\\": \\\"Oficina Iquique\\\"}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit Log",
+      "item": [
+        {
+          "name": "List Audit Log",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/audit-log",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audit-log"],
+              "query": [
+                { "key": "action", "value": "movement_created", "disabled": true },
+                { "key": "entity", "value": "account_movements", "disabled": true },
+                { "key": "from", "value": "2026-01-01T00:00:00Z", "disabled": true },
+                { "key": "to", "value": "2026-12-31T23:59:59Z", "disabled": true }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
