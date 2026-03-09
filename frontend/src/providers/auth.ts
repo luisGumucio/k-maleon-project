@@ -43,7 +43,7 @@ export const authProvider: AuthProvider = {
     return { success: true };
   },
 
-  checkAuth: async () => {
+  check: async () => {
     const token = localStorage.getItem(TOKEN_KEY);
     if (!token) {
       return { authenticated: false, redirectTo: "/login" };

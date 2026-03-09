@@ -6,15 +6,13 @@ export const apiUrl = `${API_URL}/api`;
 
 export async function fetchJson(url: string, options?: RequestInit) {
   const token = getToken();
-  const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
-
   const response = await fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      ...authHeader,
-      ...(options?.headers ?? {}),
-    },
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options?.headers as Record<string, string> ?? {}),
+    } as HeadersInit,
   });
   if (!response.ok) {
     const error = await response.text();
