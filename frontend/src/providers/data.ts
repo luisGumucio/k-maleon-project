@@ -4,6 +4,24 @@ import { getToken } from "./auth";
 
 export const apiUrl = `${API_URL}/api`;
 
+export async function fetchWithAuth(url: string, options?: RequestInit) {
+  const token = getToken();
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options?.headers as Record<string, string> ?? {}),
+    } as HeadersInit,
+  });
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error || response.statusText);
+  }
+  if (response.status === 204 || response.headers.get("content-length") === "0") return null;
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
+}
+
 export async function fetchJson(url: string, options?: RequestInit) {
   const token = getToken();
   const response = await fetch(url, {

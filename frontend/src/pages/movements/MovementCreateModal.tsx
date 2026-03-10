@@ -18,7 +18,7 @@ import dayjs from "dayjs";
 import { PaymentType, MovementType } from "../../types/movement";
 import { MetadataFields } from "./MetadataFields";
 import { dollarsToCents } from "../../utils/money";
-import { apiUrl, fetchJson } from "../../providers/data";
+import { apiUrl, fetchJson, fetchWithAuth } from "../../providers/data";
 
 const { useBreakpoint } = Grid;
 
@@ -65,12 +65,10 @@ export const MovementCreateModal = ({ operationId, onSuccess }: Props) => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch(`${apiUrl}/attachments/upload`, {
+      const data = await fetchWithAuth(`${apiUrl}/attachments/upload`, {
         method: "POST",
-        body: formData,
+        body: formData
       });
-      if (!res.ok) throw new Error("Upload failed");
-      const data = await res.json();
       setUploadedUrl(data.url);
       setUploadedFileName(file.name);
       message.success("Archivo subido correctamente");
@@ -226,6 +224,7 @@ export const MovementCreateModal = ({ operationId, onSuccess }: Props) => {
             ) : (
               <Upload
                 beforeUpload={handleUpload}
+                customRequest={() => {}}
                 showUploadList={false}
                 accept=".pdf,.jpg,.jpeg,.png"
                 disabled={uploading}
