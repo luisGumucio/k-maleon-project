@@ -4,6 +4,7 @@ import com.kmaleon.dto.*;
 import com.kmaleon.exception.ResourceNotFoundException;
 import com.kmaleon.model.*;
 import com.kmaleon.repository.*;
+import com.kmaleon.security.AuthenticatedUser;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -138,9 +139,14 @@ public class InventoryMovementService {
 
     // --- History ---
 
-    public List<InventoryMovementResponse> findAll(String type, UUID itemId,
+    public List<InventoryMovementResponse> findAll(AuthenticatedUser caller, String type, UUID itemId,
                                                    UUID locationId, LocalDate from, LocalDate to) {
-        Specification<InventoryMovement> spec = buildSpec(type, itemId, locationId, from, to);
+        // Si el caller es encargado_sucursal, forzar su locationId ignorando el parámetro
+        UUID effectiveLocationId = "encargado_sucursal".equals(caller.getRole())
+                ? caller.getLocationId()
+                : locationId;
+
+        Specification<InventoryMovement> spec = buildSpec(type, itemId, effectiveLocationId, from, to);
         return movementRepository.findAll(spec).stream()
                 .map(InventoryMovementResponse::from)
                 .toList();

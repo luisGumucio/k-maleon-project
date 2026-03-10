@@ -21,6 +21,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class SupplierServiceTest {
 
+    private static final UUID CALLER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
     @Mock
     private SupplierRepository supplierRepository;
 
@@ -42,23 +44,35 @@ class SupplierServiceTest {
             return s;
         });
 
-        SupplierResponse response = supplierService.create(request);
+        SupplierResponse response = supplierService.create(CALLER_ID, request);
 
         assertThat(response.getName()).isEqualTo("China Trading Co.");
         assertThat(response.getId()).isNotNull();
     }
 
     @Test
-    void whenFindAll_thenReturnsMappedList() {
+    void whenFindAll_asSuperAdmin_thenReturnsAllSuppliers() {
         Supplier s1 = supplierWithName("Supplier A");
         Supplier s2 = supplierWithName("Supplier B");
         when(supplierRepository.findAll()).thenReturn(List.of(s1, s2));
 
-        List<SupplierResponse> responses = supplierService.findAll();
+        List<SupplierResponse> responses = supplierService.findAll(null, "super_admin");
 
         assertThat(responses).hasSize(2);
         assertThat(responses.get(0).getName()).isEqualTo("Supplier A");
         assertThat(responses.get(1).getName()).isEqualTo("Supplier B");
+    }
+
+    @Test
+    void whenFindAll_asAdmin_thenReturnsOnlyOwnSuppliers() {
+        UUID callerId = UUID.randomUUID();
+        Supplier s1 = supplierWithName("My Supplier");
+        when(supplierRepository.findByOwnerId(callerId)).thenReturn(List.of(s1));
+
+        List<SupplierResponse> responses = supplierService.findAll(callerId, "admin");
+
+        assertThat(responses).hasSize(1);
+        assertThat(responses.get(0).getName()).isEqualTo("My Supplier");
     }
 
     // -------------------------
@@ -71,7 +85,7 @@ class SupplierServiceTest {
         request.setName("Failing Supplier");
         when(supplierRepository.save(any())).thenThrow(new RuntimeException("DB error"));
 
-        assertThatThrownBy(() -> supplierService.create(request))
+        assertThatThrownBy(() -> supplierService.create(CALLER_ID, request))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("DB error");
     }
@@ -84,7 +98,7 @@ class SupplierServiceTest {
     void whenFindAll_andNoSuppliers_thenReturnsEmptyList() {
         when(supplierRepository.findAll()).thenReturn(List.of());
 
-        List<SupplierResponse> responses = supplierService.findAll();
+        List<SupplierResponse> responses = supplierService.findAll(null, "super_admin");
 
         assertThat(responses).isEmpty();
     }
@@ -101,7 +115,7 @@ class SupplierServiceTest {
             return s;
         });
 
-        SupplierResponse response = supplierService.create(request);
+        SupplierResponse response = supplierService.create(CALLER_ID, request);
 
         assertThat(response.getName()).isEqualTo(name);
     }

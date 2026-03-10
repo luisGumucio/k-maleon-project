@@ -28,6 +28,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ShipmentServiceTest {
 
+    private static final UUID CALLER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final String CALLER_ROLE = "super_admin";
+
     @Mock
     private ShipmentRepository shipmentRepository;
 
@@ -48,6 +51,7 @@ class ShipmentServiceTest {
 
         shipment = new Shipment();
         shipment.setId(UUID.randomUUID());
+        shipment.setOwnerId(CALLER_ID);
         shipment.setSupplier(supplier);
         shipment.setContainerNumber("CARU5170029");
         shipment.setDepartureDate(LocalDate.of(2026, 3, 1));
@@ -68,7 +72,7 @@ class ShipmentServiceTest {
             return s;
         });
 
-        ShipmentResponse response = shipmentService.create(request);
+        ShipmentResponse response = shipmentService.create(CALLER_ID, request);
 
         assertThat(response.getSupplierName()).isEqualTo("Test Supplier");
         assertThat(response.getContainerNumber()).isEqualTo("CARU5170029");
@@ -83,20 +87,20 @@ class ShipmentServiceTest {
         when(shipmentRepository.findById(shipment.getId())).thenReturn(Optional.of(shipment));
         when(shipmentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        shipmentService.update(shipment.getId(), request);
+        shipmentService.update(shipment.getId(), CALLER_ID, CALLER_ROLE, request);
 
         ArgumentCaptor<Shipment> captor = ArgumentCaptor.forClass(Shipment.class);
         verify(shipmentRepository).save(captor.capture());
         assertThat(captor.getValue().getDocumentUrl()).isEqualTo(documentUrl);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
+    @SuppressWarnings("unchecked")
     void findAll_withSupplierId_returnsFilteredList() {
         when(shipmentRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class)))
                 .thenReturn(List.of(shipment));
 
-        List<ShipmentResponse> responses = shipmentService.findAll(supplier.getId(), null, null, null);
+        List<ShipmentResponse> responses = shipmentService.findAll(CALLER_ID, CALLER_ROLE, supplier.getId(), null, null, null);
 
         assertThat(responses).hasSize(1);
         assertThat(responses.get(0).getSupplierName()).isEqualTo("Test Supplier");
@@ -104,9 +108,9 @@ class ShipmentServiceTest {
 
     @Test
     void delete_withExistingId_deletesShipment() {
-        when(shipmentRepository.existsById(shipment.getId())).thenReturn(true);
+        when(shipmentRepository.findById(shipment.getId())).thenReturn(Optional.of(shipment));
 
-        shipmentService.delete(shipment.getId());
+        shipmentService.delete(shipment.getId(), CALLER_ID, CALLER_ROLE);
 
         verify(shipmentRepository).deleteById(shipment.getId());
     }
@@ -120,7 +124,7 @@ class ShipmentServiceTest {
         ShipmentRequest request = buildRequest();
         when(supplierRepository.findById(request.getSupplierId())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> shipmentService.create(request))
+        assertThatThrownBy(() -> shipmentService.create(CALLER_ID, request))
                 .isInstanceOf(ResourceNotFoundException.class);
 
         verify(shipmentRepository, never()).save(any());
@@ -131,7 +135,7 @@ class ShipmentServiceTest {
         UUID unknownId = UUID.randomUUID();
         when(shipmentRepository.findById(unknownId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> shipmentService.update(unknownId, buildRequest()))
+        assertThatThrownBy(() -> shipmentService.update(unknownId, CALLER_ID, CALLER_ROLE, buildRequest()))
                 .isInstanceOf(ResourceNotFoundException.class);
 
         verify(shipmentRepository, never()).save(any());
@@ -140,9 +144,9 @@ class ShipmentServiceTest {
     @Test
     void delete_withNonExistentShipment_throwsResourceNotFoundException() {
         UUID unknownId = UUID.randomUUID();
-        when(shipmentRepository.existsById(unknownId)).thenReturn(false);
+        when(shipmentRepository.findById(unknownId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> shipmentService.delete(unknownId))
+        assertThatThrownBy(() -> shipmentService.delete(unknownId, CALLER_ID, CALLER_ROLE))
                 .isInstanceOf(ResourceNotFoundException.class);
 
         verify(shipmentRepository, never()).deleteById(any());
@@ -163,20 +167,20 @@ class ShipmentServiceTest {
         when(shipmentRepository.findById(shipment.getId())).thenReturn(Optional.of(shipment));
         when(shipmentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        shipmentService.update(shipment.getId(), request);
+        shipmentService.update(shipment.getId(), CALLER_ID, CALLER_ROLE, request);
 
         ArgumentCaptor<Shipment> captor = ArgumentCaptor.forClass(Shipment.class);
         verify(shipmentRepository).save(captor.capture());
         assertThat(captor.getValue().getDocumentUrl()).isEqualTo(existingUrl);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
+    @SuppressWarnings("unchecked")
     void findAll_withNoSupplierId_returnsAllShipments() {
         when(shipmentRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class)))
                 .thenReturn(List.of(shipment));
 
-        List<ShipmentResponse> responses = shipmentService.findAll(null, null, null, null);
+        List<ShipmentResponse> responses = shipmentService.findAll(CALLER_ID, CALLER_ROLE, null, null, null, null);
 
         assertThat(responses).hasSize(1);
     }

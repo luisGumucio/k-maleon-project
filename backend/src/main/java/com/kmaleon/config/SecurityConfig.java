@@ -42,7 +42,9 @@ public class SecurityConfig {
                 })
             )
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/attachments/upload").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                 .anyRequest().authenticated()
             )

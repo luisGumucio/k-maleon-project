@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface TransferRequestRepository extends JpaRepository<TransferRequest, UUID> {
     List<TransferRequest> findByStatusOrderByCreatedAtDesc(String status);
     List<TransferRequest> findAllByOrderByCreatedAtDesc();
+    List<TransferRequest> findByLocationIdOrderByCreatedAtDesc(UUID locationId);
+    List<TransferRequest> findByLocationIdAndStatusOrderByCreatedAtDesc(UUID locationId, String status);
 }

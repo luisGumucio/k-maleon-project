@@ -12,6 +12,7 @@ import com.kmaleon.repository.LocationRepository;
 import com.kmaleon.repository.TransferRequestRepository;
 import com.kmaleon.repository.UnitConversionRepository;
 import com.kmaleon.repository.UnitRepository;
+import com.kmaleon.security.AuthenticatedUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,12 +45,19 @@ public class TransferRequestService {
         this.inventoryMovementService = inventoryMovementService;
     }
 
-    public List<TransferRequestItemResponse> findAll(String status) {
+    public List<TransferRequestItemResponse> findAll(AuthenticatedUser caller, String status) {
+        boolean isEncargado = "encargado_sucursal".equals(caller.getRole());
+        UUID locationId = isEncargado ? caller.getLocationId() : null;
+
         List<TransferRequest> requests;
-        if (status != null && !status.isEmpty()) {
-            requests = transferRequestRepository.findByStatusOrderByCreatedAtDesc(status);
+        if (isEncargado && locationId != null) {
+            requests = (status != null && !status.isEmpty())
+                    ? transferRequestRepository.findByLocationIdAndStatusOrderByCreatedAtDesc(locationId, status)
+                    : transferRequestRepository.findByLocationIdOrderByCreatedAtDesc(locationId);
         } else {
-            requests = transferRequestRepository.findAllByOrderByCreatedAtDesc();
+            requests = (status != null && !status.isEmpty())
+                    ? transferRequestRepository.findByStatusOrderByCreatedAtDesc(status)
+                    : transferRequestRepository.findAllByOrderByCreatedAtDesc();
         }
 
         return requests.stream()

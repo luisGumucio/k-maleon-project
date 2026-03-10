@@ -16,10 +16,8 @@ import {
 } from "antd";
 import { useNavigate } from "react-router";
 import { apiUrl, fetchJson } from "../../providers/data";
+import { getLocationId } from "../../providers/auth";
 import type { Item, UnitConversion, TransferRequestItem } from "../../types/inventory";
-
-// In a real app this would come from the auth token.
-const BRANCH_LOCATION_ID = import.meta.env.VITE_MOCK_BRANCH_LOCATION_ID as string | undefined;
 
 const { useBreakpoint } = Grid;
 
@@ -64,12 +62,11 @@ export const BranchRequestPage = () => {
       ]
     : [];
 
-  const params = BRANCH_LOCATION_ID
-    ? `?locationId=${BRANCH_LOCATION_ID}`
-    : "";
+  const locationId = getLocationId();
+  const params = locationId ? `?locationId=${locationId}` : "";
 
   const { data: myRequests = [], isLoading, isError } = useQuery<TransferRequestItem[]>({
-    queryKey: ["my-transfer-requests", BRANCH_LOCATION_ID],
+    queryKey: ["my-transfer-requests", locationId],
     queryFn: () => fetchJson(`${apiUrl}/inventory/transfer-requests${params}`),
   });
 
@@ -79,7 +76,7 @@ export const BranchRequestPage = () => {
         method: "POST",
         body: JSON.stringify({
           ...values,
-          locationId: BRANCH_LOCATION_ID,
+          locationId,
         }),
       }),
     onSuccess: () => {

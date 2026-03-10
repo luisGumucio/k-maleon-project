@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-export type AppRole = "super_admin" | "admin" | "inventory_admin" | "branch_manager";
+export type AppRole = "super_admin" | "admin" | "inventory_admin" | "almacenero" | "encargado_sucursal";
 
 interface RoleContextType {
   role: AppRole;
@@ -16,7 +16,7 @@ export const RoleContext = createContext<RoleContextType>({
 
 export const useRole = () => useContext(RoleContext);
 
-const VALID_ROLES: AppRole[] = ["super_admin", "admin", "inventory_admin", "branch_manager"];
+const VALID_ROLES: AppRole[] = ["super_admin", "admin", "inventory_admin", "almacenero", "encargado_sucursal"];
 
 function getRole(): AppRole {
   const stored = localStorage.getItem("kmaleon_role");

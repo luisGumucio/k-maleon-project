@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import { ColorModeContextProvider } from "./contexts/color-mode";
 import { RoleContextProvider, useRole } from "./contexts/role";
 import { AdminLayout } from "./components/layouts/AdminLayout";
+import { AlmaceneroLayout } from "./components/layouts/AlmaceneroLayout";
 import { BranchLayout } from "./components/layouts/BranchLayout";
 import { InventoryLayout } from "./components/layouts/InventoryLayout";
 import { SuperAdminLayout } from "./components/layouts/SuperAdminLayout";
@@ -31,11 +32,15 @@ function AppRouter() {
   if (role === "super_admin" && viewingAs === "inventory_admin") {
     return <InventoryLayout fromSuperAdmin />;
   }
+  if (role === "super_admin" && viewingAs === "almacenero") {
+    return <AlmaceneroLayout fromSuperAdmin />;
+  }
 
   // Layout por rol base
   if (role === "super_admin") return <SuperAdminLayout />;
   if (role === "inventory_admin") return <InventoryLayout />;
-  if (role === "branch_manager") return <BranchLayout />;
+  if (role === "almacenero") return <AlmaceneroLayout />;
+  if (role === "encargado_sucursal") return <BranchLayout />;
   return <AdminLayout />;
 }
 

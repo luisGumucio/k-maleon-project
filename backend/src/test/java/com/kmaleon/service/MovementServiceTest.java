@@ -78,7 +78,7 @@ class MovementServiceTest {
         MovementRequest request = buildRequest("salida", 200000L);
 
         when(operationRepository.findById(request.getOperationId())).thenReturn(Optional.of(operation));
-        when(accountService.getAccount()).thenReturn(account);
+        when(accountService.getAccount(any())).thenReturn(account);
         when(movementRepository.save(any())).thenAnswer(inv -> withId(inv.getArgument(0)));
 
         MovementResponse response = movementService.registerMovement(request);
@@ -97,7 +97,7 @@ class MovementServiceTest {
         MovementRequest request = buildRequest("entrada", 300000L);
 
         when(operationRepository.findById(request.getOperationId())).thenReturn(Optional.of(operation));
-        when(accountService.getAccount()).thenReturn(account);
+        when(accountService.getAccount(any())).thenReturn(account);
         when(movementRepository.save(any())).thenAnswer(inv -> withId(inv.getArgument(0)));
 
         MovementResponse response = movementService.registerMovement(request);
@@ -114,7 +114,7 @@ class MovementServiceTest {
         MovementRequest request = buildRequest("salida", 100000L);
 
         when(operationRepository.findById(request.getOperationId())).thenReturn(Optional.of(operation));
-        when(accountService.getAccount()).thenReturn(account);
+        when(accountService.getAccount(any())).thenReturn(account);
         when(movementRepository.save(any())).thenAnswer(inv -> withId(inv.getArgument(0)));
 
         movementService.registerMovement(request);
@@ -139,7 +139,7 @@ class MovementServiceTest {
         request.setAttachmentUrl("https://supabase.co/storage/v1/object/public/financial-docs/uuid.pdf");
 
         when(operationRepository.findById(request.getOperationId())).thenReturn(Optional.of(operation));
-        when(accountService.getAccount()).thenReturn(account);
+        when(accountService.getAccount(any())).thenReturn(account);
         when(movementRepository.save(any())).thenAnswer(inv -> withId(inv.getArgument(0)));
 
         movementService.registerMovement(request);
@@ -167,7 +167,7 @@ class MovementServiceTest {
     void whenAccountNotFound_thenThrowsAndMovementIsNotPersisted() {
         MovementRequest request = buildRequest("salida", 100000L);
         when(operationRepository.findById(request.getOperationId())).thenReturn(Optional.of(operation));
-        when(accountService.getAccount()).thenThrow(new ResourceNotFoundException("No account found"));
+        when(accountService.getAccount(any())).thenThrow(new ResourceNotFoundException("No account found"));
 
         assertThatThrownBy(() -> movementService.registerMovement(request))
                 .isInstanceOf(ResourceNotFoundException.class);
@@ -211,7 +211,7 @@ class MovementServiceTest {
         request.setCurrency(null);
 
         when(operationRepository.findById(request.getOperationId())).thenReturn(Optional.of(operation));
-        when(accountService.getAccount()).thenReturn(account);
+        when(accountService.getAccount(any())).thenReturn(account);
         when(movementRepository.save(any())).thenAnswer(inv -> withId(inv.getArgument(0)));
 
         MovementResponse response = movementService.registerMovement(request);
@@ -225,7 +225,7 @@ class MovementServiceTest {
         MovementRequest request = buildRequest("salida", 200000L);
 
         when(operationRepository.findById(request.getOperationId())).thenReturn(Optional.of(operation));
-        when(accountService.getAccount()).thenReturn(account);
+        when(accountService.getAccount(any())).thenReturn(account);
         when(movementRepository.save(any())).thenAnswer(inv -> withId(inv.getArgument(0)));
 
         movementService.registerMovement(request);

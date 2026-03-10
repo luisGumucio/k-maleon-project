@@ -2,9 +2,11 @@ package com.kmaleon.controller;
 
 import com.kmaleon.dto.UnitRequest;
 import com.kmaleon.dto.UnitResponse;
+import com.kmaleon.security.Roles;
 import com.kmaleon.service.UnitService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,18 +23,21 @@ public class UnitController {
     }
 
     @GetMapping
+    @PreAuthorize(Roles.INVENTORY_STAFF)
     public List<UnitResponse> findAll() {
         return unitService.findAll();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize(Roles.INVENTORY_MANAGERS)
     public UnitResponse create(@Valid @RequestBody UnitRequest request) {
         return unitService.create(request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize(Roles.INVENTORY_MANAGERS)
     public void delete(@PathVariable UUID id) {
         unitService.delete(id);
     }

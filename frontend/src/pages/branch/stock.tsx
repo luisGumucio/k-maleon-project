@@ -9,11 +9,8 @@ import {
 } from "antd";
 import { WarningOutlined } from "@ant-design/icons";
 import { apiUrl, fetchJson } from "../../providers/data";
+import { getLocationId } from "../../providers/auth";
 import type { ItemStock, StockLocationEntry } from "../../types/inventory";
-
-// In a real app this would come from the auth token.
-// For now it's read from the env var VITE_MOCK_BRANCH_LOCATION_ID.
-const BRANCH_LOCATION_ID = import.meta.env.VITE_MOCK_BRANCH_LOCATION_ID as string | undefined;
 
 const { useBreakpoint } = Grid;
 
@@ -26,11 +23,13 @@ export const BranchStockPage = () => {
     queryFn: () => fetchJson(`${apiUrl}/inventory/stock`),
   });
 
+  const locationId = getLocationId();
+
   // Filter to only this branch's location entry
   const branchStock = stockList
     .map((item) => {
-      const entry = BRANCH_LOCATION_ID
-        ? item.locations.find((l) => l.locationId === BRANCH_LOCATION_ID)
+      const entry = locationId
+        ? item.locations.find((l) => l.locationId === locationId)
         : item.locations[0]; // fallback: first location
       return entry ? { item, entry } : null;
     })

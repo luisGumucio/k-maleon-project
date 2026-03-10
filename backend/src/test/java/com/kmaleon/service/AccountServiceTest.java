@@ -1,7 +1,6 @@
 package com.kmaleon.service;
 
 import com.kmaleon.dto.AccountBalanceResponse;
-import com.kmaleon.exception.ResourceNotFoundException;
 import com.kmaleon.model.Account;
 import com.kmaleon.repository.AccountRepository;
 import org.junit.jupiter.api.Test;
@@ -11,16 +10,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
+
+    private static final UUID CALLER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Mock
     private AccountRepository accountRepository;
@@ -35,9 +35,9 @@ class AccountServiceTest {
     @Test
     void whenGetBalance_thenReturnsCurrentBalance() {
         Account account = accountWithBalance(750000L);
-        when(accountRepository.findAll()).thenReturn(List.of(account));
+        when(accountRepository.findByOwnerId(CALLER_ID)).thenReturn(Optional.of(account));
 
-        AccountBalanceResponse response = accountService.getBalance();
+        AccountBalanceResponse response = accountService.getBalance(CALLER_ID);
 
         assertThat(response.getBalance()).isEqualTo(750000L);
     }
@@ -64,10 +64,10 @@ class AccountServiceTest {
 
     @Test
     void whenSetInitialBalance_andNoAccountExists_thenCreatesNewAccount() {
-        when(accountRepository.findAll()).thenReturn(List.of());
+        when(accountRepository.findByOwnerId(CALLER_ID)).thenReturn(Optional.empty());
         when(accountRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        AccountBalanceResponse response = accountService.setInitialBalance(1000000L);
+        AccountBalanceResponse response = accountService.setInitialBalance(CALLER_ID, 1000000L);
 
         assertThat(response.getBalance()).isEqualTo(1000000L);
     }
@@ -77,11 +77,14 @@ class AccountServiceTest {
     // -------------------------
 
     @Test
-    void whenGetAccount_andNoneExists_thenThrowsResourceNotFoundException() {
-        when(accountRepository.findAll()).thenReturn(List.of());
+    void whenGetAccount_andNoneExists_thenReturnsNewAccountWithZeroBalance() {
+        when(accountRepository.findByOwnerId(CALLER_ID)).thenReturn(Optional.empty());
+        when(accountRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        assertThatThrownBy(() -> accountService.getAccount())
-                .isInstanceOf(ResourceNotFoundException.class);
+        Account account = accountService.getAccount(CALLER_ID);
+
+        assertThat(account.getBalance()).isEqualTo(0L);
+        assertThat(account.getOwnerId()).isEqualTo(CALLER_ID);
     }
 
     // -------------------------
@@ -91,10 +94,10 @@ class AccountServiceTest {
     @Test
     void whenSetInitialBalance_andAccountAlreadyExists_thenUpdatesExistingAccount() {
         Account existing = accountWithBalance(500000L);
-        when(accountRepository.findAll()).thenReturn(List.of(existing));
+        when(accountRepository.findByOwnerId(CALLER_ID)).thenReturn(Optional.of(existing));
         when(accountRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        AccountBalanceResponse response = accountService.setInitialBalance(2000000L);
+        AccountBalanceResponse response = accountService.setInitialBalance(CALLER_ID, 2000000L);
 
         assertThat(response.getBalance()).isEqualTo(2000000L);
 

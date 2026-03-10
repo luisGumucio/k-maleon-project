@@ -2,6 +2,7 @@ import { Card, Col, Row, Typography, Grid } from "antd";
 import {
   DollarOutlined,
   InboxOutlined,
+  ShopOutlined,
 } from "@ant-design/icons";
 import { useRole } from "../../contexts/role";
 
@@ -67,6 +68,24 @@ export const SuperAdminDashboard = () => {
             </Typography.Title>
             <Typography.Text type="secondary">
               Bodegas, sucursales, stock y almaceneros
+            </Typography.Text>
+          </Card>
+        </Col>
+
+        <Col xs={24} sm={12} md={10} lg={8}>
+          <Card
+            hoverable
+            style={cardStyle}
+            onClick={() => setViewingAs("almacenero")}
+          >
+            <ShopOutlined
+              style={{ fontSize: 48, color: "#fa8c16", marginBottom: 16 }}
+            />
+            <Typography.Title level={4} style={{ marginBottom: 4 }}>
+              Panel de Almacenero
+            </Typography.Title>
+            <Typography.Text type="secondary">
+              Compras, transferencias y solicitudes de sucursales
             </Typography.Text>
           </Card>
         </Col>

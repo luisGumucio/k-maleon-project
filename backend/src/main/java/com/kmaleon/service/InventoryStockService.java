@@ -4,6 +4,7 @@ import com.kmaleon.dto.ItemStockResponse;
 import com.kmaleon.dto.StockLocationEntry;
 import com.kmaleon.model.InventoryStock;
 import com.kmaleon.repository.InventoryStockRepository;
+import com.kmaleon.security.AuthenticatedUser;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,14 +23,18 @@ public class InventoryStockService {
         this.inventoryStockRepository = inventoryStockRepository;
     }
 
-    public List<ItemStockResponse> findAll() {
+    public List<ItemStockResponse> findAll(AuthenticatedUser caller) {
         List<InventoryStock> allStock = inventoryStockRepository.findAll();
 
         Map<UUID, List<InventoryStock>> byItem = allStock.stream()
                 .collect(Collectors.groupingBy(s -> s.getItem().getId()));
 
+        boolean isEncargado = "encargado_sucursal".equals(caller.getRole());
+        UUID callerLocationId = caller.getLocationId();
+
         return byItem.entrySet().stream()
-                .map(entry -> buildItemStockResponse(entry.getValue()))
+                .map(entry -> buildItemStockResponse(entry.getValue(), isEncargado, callerLocationId))
+                .filter(r -> !isEncargado || !r.getLocations().isEmpty())
                 .toList();
     }
 
@@ -49,10 +54,12 @@ public class InventoryStockService {
         inventoryStockRepository.save(stock);
     }
 
-    private ItemStockResponse buildItemStockResponse(List<InventoryStock> stocks) {
+    private ItemStockResponse buildItemStockResponse(List<InventoryStock> stocks,
+                                                      boolean filterByLocation, UUID locationId) {
         InventoryStock first = stocks.get(0);
 
         List<StockLocationEntry> locationEntries = stocks.stream()
+                .filter(s -> !filterByLocation || s.getLocation().getId().equals(locationId))
                 .map(s -> new StockLocationEntry.Builder()
                         .locationId(s.getLocation().getId())
                         .locationName(s.getLocation().getName())

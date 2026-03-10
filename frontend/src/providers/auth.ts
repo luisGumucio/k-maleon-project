@@ -4,6 +4,7 @@ import { API_URL } from "./constants";
 const TOKEN_KEY = "kmaleon_token";
 const ROLE_KEY = "kmaleon_role";
 const NAME_KEY = "kmaleon_name";
+const LOCATION_KEY = "kmaleon_location_id";
 
 export const authProvider: AuthProvider = {
   login: async ({ email, password }) => {
@@ -24,6 +25,8 @@ export const authProvider: AuthProvider = {
     localStorage.setItem(TOKEN_KEY, data.token);
     localStorage.setItem(ROLE_KEY, data.role);
     localStorage.setItem(NAME_KEY, data.name ?? "");
+    if (data.locationId) localStorage.setItem(LOCATION_KEY, data.locationId);
+    else localStorage.removeItem(LOCATION_KEY);
 
     return { success: true, redirectTo: "/" };
   },
@@ -39,6 +42,7 @@ export const authProvider: AuthProvider = {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(ROLE_KEY);
     localStorage.removeItem(NAME_KEY);
+    localStorage.removeItem(LOCATION_KEY);
     window.location.href = "/";
     return { success: true };
   },
@@ -63,6 +67,8 @@ export const authProvider: AuthProvider = {
     const data = await response.json();
     localStorage.setItem(ROLE_KEY, data.role);
     localStorage.setItem(NAME_KEY, data.name ?? "");
+    if (data.locationId) localStorage.setItem(LOCATION_KEY, data.locationId);
+    else localStorage.removeItem(LOCATION_KEY);
 
     return { authenticated: true };
   },
@@ -88,4 +94,8 @@ export const authProvider: AuthProvider = {
 
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
+}
+
+export function getLocationId(): string | null {
+  return localStorage.getItem(LOCATION_KEY);
 }
