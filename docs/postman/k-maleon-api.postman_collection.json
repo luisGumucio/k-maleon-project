@@ -507,6 +507,40 @@
               "body": "{\n  \"url\": \"https://xxxx.supabase.co/storage/v1/object/public/financial-docs/uuid.pdf\"\n}"
             }
           ]
+        },
+        {
+          "name": "Parse SWIFT PDF",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/attachments/parse-swift",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "attachments", "parse-swift"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://xxxx.supabase.co/storage/v1/object/public/financial-docs/uuid.pdf\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "response": [
+            {
+              "name": "Extracción exitosa",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"messageId\": \"22591270001\",\n  \"uetr\": \"9b6df95f-ce82-4871-b067-3e4d6d1b1ff1\",\n  \"settlementDate\": \"2026-03-02\",\n  \"debtorBank\": \"SCOTIABANK CHILE\",\n  \"debtorBic\": \"BKSACLRMXXX\",\n  \"debtorAccount\": \"90993132187\",\n  \"creditorBank\": \"JPMORGAN CHASE BANK, N.A., HONG KON\",\n  \"creditorBic\": \"CHASHKHHXXX\",\n  \"creditorName\": \"YIWU XUANSHI E-COMERCE FIRM\",\n  \"creditorAccount\": \"63003673626\",\n  \"remittance\": \"PAGO DE MERCADERIA\",\n  \"chargeBearer\": \"DEBT\"\n}"
+            },
+            {
+              "name": "URL inválida o PDF no accesible",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"message\": \"No se pudo acceder o leer el PDF: ...\"\n}"
+            }
+          ]
         }
       ]
     },

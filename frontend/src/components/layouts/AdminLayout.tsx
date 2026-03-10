@@ -12,7 +12,15 @@ import routerProvider, {
 } from "@refinedev/react-router";
 import { RefineKbar } from "@refinedev/kbar";
 import { Button } from "antd";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import {
+  ArrowLeftOutlined,
+  DashboardOutlined,
+  WalletOutlined,
+  TeamOutlined,
+  FileTextOutlined,
+  ContainerOutlined,
+  InboxOutlined,
+} from "@ant-design/icons";
 import { Outlet, Route, Routes } from "react-router";
 import { Header } from "../header";
 import { dataProvider } from "../../providers/data";
@@ -35,7 +43,6 @@ import {
 } from "../../pages/shipments";
 import { ShipmentItemList, ShipmentItemShow } from "../../pages/shipment-items";
 import { AccountBalance } from "../../pages/account";
-import { AuditList } from "../../pages/audit";
 
 interface AdminLayoutProps {
   fromSuperAdmin?: boolean;
@@ -69,19 +76,19 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
         {
           name: "admin-dashboard",
           list: "/admin/dashboard",
-          meta: { label: "Dashboard" },
+          meta: { label: "Dashboard", icon: <DashboardOutlined /> },
         },
         {
           name: "account",
           list: "/account",
-          meta: { label: "Cuenta" },
+          meta: { label: "Cuenta", icon: <WalletOutlined /> },
         },
         {
           name: "suppliers",
           list: "/suppliers",
           create: "/suppliers/create",
           edit: "/suppliers/edit/:id",
-          meta: { label: "Proveedores" },
+          meta: { label: "Proveedores", icon: <TeamOutlined /> },
         },
         {
           name: "operations",
@@ -89,7 +96,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           show: "/operations/show/:id",
           create: "/operations/create",
           edit: "/operations/edit/:id",
-          meta: { label: "Operaciones" },
+          meta: { label: "Operaciones", icon: <FileTextOutlined /> },
         },
         {
           name: "shipments",
@@ -97,18 +104,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           show: "/shipments/show/:id",
           create: "/shipments/create",
           edit: "/shipments/edit/:id",
-          meta: { label: "Rastreos" },
+          meta: { label: "Rastreos", icon: <ContainerOutlined /> },
         },
         {
           name: "shipment-items",
           list: "/shipment-items",
           show: "/shipment-items/show/:id",
-          meta: { label: "Contenidos" },
-        },
-        {
-          name: "audit-log",
-          list: "/audit-log",
-          meta: { label: "Audit Log" },
+          meta: { label: "Contenidos", icon: <InboxOutlined /> },
         },
       ]}
       options={{
@@ -163,7 +165,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
             <Route index element={<ShipmentItemList />} />
             <Route path="show/:id" element={<ShipmentItemShow />} />
           </Route>
-          <Route path="/audit-log" element={<AuditList />} />
           <Route path="*" element={<ErrorComponent />} />
         </Route>
       </Routes>

@@ -11,6 +11,11 @@ import routerProvider, {
   NavigateToResource,
 } from "@refinedev/react-router";
 import { RefineKbar } from "@refinedev/kbar";
+import {
+  DashboardOutlined,
+  UserOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
 import { Outlet, Route, Routes } from "react-router";
 import { Header } from "../header";
 import { dataProvider } from "../../providers/data";
@@ -32,17 +37,17 @@ export const SuperAdminLayout: React.FC = () => {
         {
           name: "super-dashboard",
           list: "/super/dashboard",
-          meta: { label: "Dashboard" },
+          meta: { label: "Dashboard", icon: <DashboardOutlined /> },
         },
         {
           name: "users",
           list: "/users",
-          meta: { label: "Usuarios" },
+          meta: { label: "Usuarios", icon: <UserOutlined /> },
         },
         {
           name: "settings",
           list: "/settings",
-          meta: { label: "Configuraciones" },
+          meta: { label: "Configuraciones", icon: <SettingOutlined /> },
         },
       ]}
       options={{

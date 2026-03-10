@@ -12,7 +12,7 @@ import {
   Grid,
   Upload,
 } from "antd";
-import { PlusOutlined, UploadOutlined, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, UploadOutlined, DeleteOutlined, FileSearchOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { PaymentType, MovementType } from "../../types/movement";
@@ -44,6 +44,7 @@ export const MovementCreateModal = ({ operationId, onSuccess }: Props) => {
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [selectedPaymentType, setSelectedPaymentType] = useState<PaymentType | null>(null);
   const [movementType, setMovementType] = useState<MovementType>("salida");
+  const [parsing, setParsing] = useState(false);
   const [form] = Form.useForm<FormValues>();
   const queryClient = useQueryClient();
   const screens = useBreakpoint();
@@ -55,6 +56,7 @@ export const MovementCreateModal = ({ operationId, onSuccess }: Props) => {
     setMovementType("salida");
     setUploadedUrl(null);
     setUploadedFileName(null);
+    setParsing(false);
     setOpen(true);
   };
 
@@ -83,6 +85,38 @@ export const MovementCreateModal = ({ operationId, onSuccess }: Props) => {
   const handleRemoveAttachment = () => {
     setUploadedUrl(null);
     setUploadedFileName(null);
+  };
+
+  const handleParseSwift = async () => {
+    if (!uploadedUrl) return;
+    setParsing(true);
+    try {
+      const data = await fetchWithAuth(`${apiUrl}/attachments/parse-swift`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: uploadedUrl }),
+      });
+      const fields: Record<string, unknown> = {};
+      if (data.messageId)     fields.message_id       = data.messageId;
+      if (data.uetr)          fields.uetr              = data.uetr;
+      if (data.settlementDate) fields.settlement_date  = dayjs(data.settlementDate);
+      if (data.debtorBank)    fields.debtor_bank       = data.debtorBank;
+      if (data.debtorBic)     fields.debtor_bic        = data.debtorBic;
+      if (data.debtorAccount) fields.debtor_account    = data.debtorAccount;
+      if (data.creditorBank)  fields.creditor_bank     = data.creditorBank;
+      if (data.creditorBic)   fields.creditor_bic      = data.creditorBic;
+      if (data.creditorName)  fields.creditor_name     = data.creditorName;
+      if (data.creditorAccount) fields.creditor_account = data.creditorAccount;
+      if (data.remittance)    fields.remittance        = data.remittance;
+      if (data.chargeBearer)  fields.charge_bearer     = data.chargeBearer;
+      form.setFieldsValue({ metadata: fields });
+      message.success("Datos extraídos correctamente");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "No se pudo extraer datos del PDF";
+      message.error(msg);
+    } finally {
+      setParsing(false);
+    }
   };
 
   const handleFinish = async (values: FormValues) => {
@@ -210,23 +244,35 @@ export const MovementCreateModal = ({ operationId, onSuccess }: Props) => {
 
           <Form.Item label="Comprobante (PDF / imagen)">
             {uploadedUrl ? (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <a href={uploadedUrl} target="_blank" rel="noopener noreferrer">
-                  {uploadedFileName ?? "Ver archivo"}
-                </a>
-                <Button
-                  size="small"
-                  danger
-                  icon={<DeleteOutlined />}
-                  onClick={handleRemoveAttachment}
-                />
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <a href={uploadedUrl} target="_blank" rel="noopener noreferrer">
+                    {uploadedFileName ?? "Ver archivo"}
+                  </a>
+                  <Button
+                    size="small"
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={handleRemoveAttachment}
+                  />
+                </div>
+                {selectedPaymentType === "swift" && uploadedFileName?.toLowerCase().endsWith(".pdf") && (
+                  <Button
+                    size="small"
+                    icon={<FileSearchOutlined />}
+                    loading={parsing}
+                    onClick={handleParseSwift}
+                  >
+                    Extraer datos del PDF
+                  </Button>
+                )}
               </div>
             ) : (
               <Upload
                 beforeUpload={handleUpload}
                 customRequest={() => {}}
                 showUploadList={false}
-                accept=".pdf,.jpg,.jpeg,.png"
+                accept={selectedPaymentType === "swift" ? ".pdf" : ".pdf,.jpg,.jpeg,.png"}
                 disabled={uploading}
               >
                 <Button icon={<UploadOutlined />} loading={uploading}>
