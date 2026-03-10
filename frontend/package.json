@@ -21,6 +21,7 @@
     "react-router": "^7.0.2"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.26.1",
     "@eslint/js": "^9.25.0",
     "@types/node": "^20",
     "@types/react": "^19.1.0",
@@ -34,13 +35,16 @@
     "globals": "^16.0.0",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.30.1",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "wrangler": "^4.71.0"
   },
   "scripts": {
     "dev": "refine dev",
     "build": "tsc && refine build",
     "start": "refine start",
-    "refine": "refine"
+    "refine": "refine",
+    "deploy": "npm run build && wrangler deploy",
+    "preview": "npm run build && wrangler dev"
   },
   "browserslist": {
     "production": [
