@@ -13,10 +13,11 @@ Sistema de gestión financiera para rastrear operaciones con proveedores y movim
 - **UI Library:** Ant Design (`@refinedev/antd`)
 - **Language:** TypeScript
 - **Hosting:** Cloudflare Pages
+- **PWA:** `vite-plugin-pwa` — service worker con autoUpdate, manifest configurado
 - **Data Provider:** Custom REST provider → `frontend/src/providers/data.ts`
 
 ### Backend
-- **Framework:** Java Spring Boot 3.2
+- **Framework:** Java Spring Boot 3.3
 - **Language:** Java 17+
 - **Build Tool:** Gradle (`build.gradle.kts`)
 - **Hosting:** Railway (auto-deploy desde GitHub)
@@ -26,13 +27,14 @@ Sistema de gestión financiera para rastrear operaciones con proveedores y movim
 - **Provider:** Supabase (PostgreSQL)
 - **Connection:** JDBC directo, puerto 5432 (no pgBouncer)
 - **File storage:** Supabase Storage (PDFs, comprobantes, documentos de contenedor)
+- **Última migration:** `016_account_deposits.sql`
 
 ---
 
 ## Architecture
 
 ```
-User → Cloudflare Pages (Refine frontend)
+User → Cloudflare Pages (Refine frontend, PWA)
             ↓ REST API calls
        Railway (Spring Boot API)
             ↓ JDBC (port 5432)
@@ -43,17 +45,48 @@ User → Cloudflare Pages (Refine frontend)
 
 ---
 
+## Estado actual de la app
+
+### Features completados ✅
+
+| Feature | Backend | Frontend |
+|---------|---------|----------|
+| Proveedores (CRUD) | ✅ | ✅ |
+| Operaciones (CRUD + filtros) | ✅ | ✅ |
+| Movimientos (entrada/salida) | ✅ | ✅ |
+| Cuenta general (saldo) | ✅ | ✅ |
+| **Depósitos de saldo** | ✅ | ✅ |
+| Audit Log | ✅ | ✅ |
+| Auth + Roles | ✅ | ✅ |
+| Layouts por rol | ✅ | ✅ |
+| Shipments (rastreo) | ✅ | ✅ |
+| Shipment Items | ✅ | ✅ |
+| SWIFT PDF Parser | ✅ | ✅ |
+| Inventario | ✅ | ⚠️ pendiente |
+| PWA | — | ✅ |
+
+### Bugs conocidos
+
+| ID | Descripción | Estado |
+|----|-------------|--------|
+| BUG-001 | Salida puede superar monto acordado de operación | ⚠️ pendiente |
+| BUG-004 | Salida puede superar saldo disponible de cuenta | ⚠️ pendiente |
+
+---
+
 ## Referencias de documentación
 
 ### Base de datos
 - **Schema completo (tablas base):** `docs/database/migrations/001_init_schema.sql`
 - **Tabla `shipments`:** `docs/database/migrations/002_create_shipments.sql`
 - **Tabla `shipment_items`:** `docs/database/migrations/003_create_shipment_items.sql`
+- **Tabla `account_deposits`:** `docs/database/migrations/016_account_deposits.sql`
 - > Toda nueva tabla/columna/índice debe agregarse como `NNN_short_description.sql` en `docs/database/migrations/`
 
 ### API Endpoints
 - **Colección Postman completa:** `docs/postman/k-maleon-api.postman_collection.json`
   - Incluye: Account, Suppliers, Operations, Movements, Attachments, Shipments, Shipment Items, Audit Log
+  - **Account endpoints:** `GET /balance`, `POST /initial-balance`, `POST /deposit`, `GET /deposits`, `GET /summary`
 
 ### Reglas por capa
 - **Backend:** `docs/rules/backend.md`
@@ -64,12 +97,15 @@ User → Cloudflare Pages (Refine frontend)
 - **Shipment Items (Contenidos):** `docs/features/02-shipment-items.md`
 
 ### Planes de trabajo
+- **Backend — General:** `docs/backend/plan.md`
 - **Backend — Shipments:** `docs/backend/plan-shipments.md`
 - **Backend — Shipment Items:** `docs/backend/plan-shipment-items.md`
+- **Backend — Depósitos:** `docs/backend/plan-account-deposits.md`
+- **Frontend — General:** `docs/frontend/plan.md`
 - **Frontend — Shipments:** `docs/frontend/plan-shipments.md`
 - **Frontend — Shipment Items:** `docs/frontend/plan-shipment-items.md`
-- **Frontend — General:** `docs/frontend/plan.md`
-- **Backend — General:** `docs/backend/plan.md`
+- **Frontend — Depósitos:** `docs/frontend/plan-account-deposits.md`
+- **Frontend — Inventario:** `docs/frontend/plan-inventory.md` ⚠️ pendiente
 
 ### Bugs documentados
 - `docs/bugs/` — registro de bugs conocidos con contexto y solución
@@ -88,10 +124,11 @@ User → Cloudflare Pages (Refine frontend)
 7. **Rollback completo ante cualquier falla** en transacciones financieras
 8. **Salidas afectan `operations.paid_amount` Y `accounts.balance`** en la misma transacción
 9. **Entradas solo afectan `accounts.balance`** — nunca `paid_amount` de la operación
-10. **Los attachments van a Supabase Storage** — solo se guarda la URL en la base de datos
+10. **Depósitos afectan solo `accounts.balance`** — sin operación asociada, se registran en `account_deposits`
+11. **Los attachments van a Supabase Storage** — solo se guarda la URL en la base de datos
     - Bucket financiero: `financial-docs` (comprobantes de movimientos)
     - Bucket contenedor: `container-docs` (documentos de shipments)
-11. **StorageService** es el único punto de acceso a Supabase Storage — usar `upload(file, bucket)` y `delete(url, bucket)`
+12. **StorageService** es el único punto de acceso a Supabase Storage — usar `upload(file, bucket)` y `delete(url, bucket)`
 
 ---
 
