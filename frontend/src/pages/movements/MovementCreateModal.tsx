@@ -96,19 +96,20 @@ export const MovementCreateModal = ({ operationId, onSuccess }: Props) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: uploadedUrl }),
       });
-      const fields: Record<string, unknown> = {};
-      if (data.messageId)     fields.message_id       = data.messageId;
-      if (data.uetr)          fields.uetr              = data.uetr;
-      if (data.settlementDate) fields.settlement_date  = dayjs(data.settlementDate);
-      if (data.debtorBank)    fields.debtor_bank       = data.debtorBank;
-      if (data.debtorBic)     fields.debtor_bic        = data.debtorBic;
-      if (data.debtorAccount) fields.debtor_account    = data.debtorAccount;
-      if (data.creditorBank)  fields.creditor_bank     = data.creditorBank;
-      if (data.creditorBic)   fields.creditor_bic      = data.creditorBic;
-      if (data.creditorName)  fields.creditor_name     = data.creditorName;
-      if (data.creditorAccount) fields.creditor_account = data.creditorAccount;
-      if (data.remittance)    fields.remittance        = data.remittance;
-      if (data.chargeBearer)  fields.charge_bearer     = data.chargeBearer;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const fields: Record<string, any> = {};
+      if (data.messageId)       fields.message_id        = data.messageId;
+      if (data.uetr)            fields.uetr               = data.uetr;
+      if (data.settlementDate)  fields.settlement_date   = dayjs(data.settlementDate);
+      if (data.debtorBank)      fields.debtor_bank        = data.debtorBank;
+      if (data.debtorBic)       fields.debtor_bic         = data.debtorBic;
+      if (data.debtorAccount)   fields.debtor_account     = data.debtorAccount;
+      if (data.creditorBank)    fields.creditor_bank      = data.creditorBank;
+      if (data.creditorBic)     fields.creditor_bic       = data.creditorBic;
+      if (data.creditorName)    fields.creditor_name      = data.creditorName;
+      if (data.creditorAccount) fields.creditor_account   = data.creditorAccount;
+      if (data.remittance)      fields.remittance         = data.remittance;
+      if (data.chargeBearer)    fields.charge_bearer      = data.chargeBearer;
       form.setFieldsValue({ metadata: fields });
       message.success("Datos extraídos correctamente");
     } catch (err) {
