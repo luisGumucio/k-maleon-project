@@ -18,12 +18,17 @@ import { DollarOutlined, SettingOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { apiUrl, fetchJson } from "../../providers/data";
 import { formatUSD, dollarsToCents } from "../../utils/money";
+import { DepositModal } from "./DepositModal";
+import { DepositHistory } from "./DepositHistory";
 
 const { useBreakpoint } = Grid;
 
-type AccountBalance = {
+type AccountSummary = {
   id: string;
   balance: number;
+  totalDeposits: number;
+  totalEntradas: number;
+  totalSalidas: number;
   updatedAt: string;
 };
 
@@ -34,9 +39,9 @@ export const AccountBalance = () => {
   const screens = useBreakpoint();
   const isMobile = !screens.md;
 
-  const { data, isLoading, isError } = useQuery<AccountBalance>({
-    queryKey: ["account-balance"],
-    queryFn: () => fetchJson(`${apiUrl}/account/balance`),
+  const { data, isLoading, isError } = useQuery<AccountSummary>({
+    queryKey: ["account-summary"],
+    queryFn: () => fetchJson(`${apiUrl}/account/summary`),
   });
 
   const { mutate: setInitialBalance, isPending } = useMutation({
@@ -47,7 +52,7 @@ export const AccountBalance = () => {
       }),
     onSuccess: () => {
       message.success("Saldo inicial configurado correctamente");
-      queryClient.invalidateQueries({ queryKey: ["account-balance"] });
+      queryClient.invalidateQueries({ queryKey: ["account-summary"] });
       setModalOpen(false);
       form.resetFields();
     },
@@ -81,32 +86,52 @@ export const AccountBalance = () => {
           </Typography.Title>
         </Col>
         <Col>
-          <Button
-            icon={<SettingOutlined />}
-            onClick={() => setModalOpen(true)}
-            size={isMobile ? "small" : "middle"}
-          >
-            {isMobile ? "Saldo inicial" : "Configurar saldo inicial"}
-          </Button>
+          <Row gutter={8} wrap={false}>
+            <Col>
+              <DepositModal />
+            </Col>
+            <Col>
+              <Button
+                icon={<SettingOutlined />}
+                onClick={() => setModalOpen(true)}
+                size={isMobile ? "small" : "middle"}
+              >
+                {isMobile ? "" : "Saldo inicial"}
+              </Button>
+            </Col>
+          </Row>
         </Col>
       </Row>
 
-      <Card size={isMobile ? "small" : "default"}>
-        <Statistic
-          title="Saldo actual"
-          value={formatUSD(data?.balance)}
-          prefix={<DollarOutlined />}
-          valueStyle={{
-            fontSize: isMobile ? 28 : 40,
-            color: (data?.balance ?? 0) >= 0 ? "#52c41a" : "#ff4d4f",
-          }}
-        />
+      <Card size={isMobile ? "small" : "default"} style={{ marginBottom: 24 }}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12}>
+            <Statistic
+              title="Saldo actual"
+              value={formatUSD(data?.balance)}
+              prefix={<DollarOutlined />}
+              valueStyle={{
+                fontSize: isMobile ? 22 : 32,
+                color: (data?.balance ?? 0) >= 0 ? "#52c41a" : "#ff4d4f",
+              }}
+            />
+          </Col>
+          <Col xs={24} sm={12}>
+            <Statistic
+              title="Total depositado"
+              value={formatUSD(data?.totalDeposits)}
+              valueStyle={{ fontSize: isMobile ? 18 : 26, color: "#1677ff" }}
+            />
+          </Col>
+        </Row>
         {data?.updatedAt && (
-          <Typography.Text type="secondary" style={{ marginTop: 8, display: "block", fontSize: 12 }}>
+          <Typography.Text type="secondary" style={{ marginTop: 12, display: "block", fontSize: 12 }}>
             Última actualización: {new Date(data.updatedAt).toLocaleString("es-CL")}
           </Typography.Text>
         )}
       </Card>
+
+      <DepositHistory />
 
       <Modal
         title="Configurar saldo inicial"

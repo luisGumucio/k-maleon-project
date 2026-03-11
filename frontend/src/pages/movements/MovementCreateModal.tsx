@@ -152,6 +152,7 @@ export const MovementCreateModal = ({ operationId, onSuccess }: Props) => {
       message.success("Movimiento registrado correctamente");
       queryClient.invalidateQueries({ queryKey: ["movements", operationId] });
       queryClient.invalidateQueries({ queryKey: ["operations"] });
+      queryClient.invalidateQueries({ queryKey: ["account-summary"] });
       setOpen(false);
       onSuccess();
     } catch (err) {

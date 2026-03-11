@@ -138,7 +138,7 @@ export const OperationList = () => {
                 <Col span={8}>
                   <Typography.Text type="secondary" style={{ fontSize: 11 }}>Pendiente</Typography.Text>
                   <br />
-                  <Typography.Text style={{ fontSize: 13, color: op.pendingAmount > 0 ? "#faad14" : "#52c41a" }}>
+                  <Typography.Text style={{ fontSize: 13, color: op.pendingAmount < 0 ? "#ff4d4f" : op.pendingAmount > 0 ? "#faad14" : "#52c41a" }}>
                     {formatUSD(op.pendingAmount)}
                   </Typography.Text>
                 </Col>
@@ -166,7 +166,15 @@ export const OperationList = () => {
         <Table.Column dataIndex="supplierName" title="Proveedor" />
         <Table.Column dataIndex="totalAmount" title="Monto acordado" render={(v) => formatUSD(v)} />
         <Table.Column dataIndex="paidAmount" title="Pagado" render={(v) => formatUSD(v)} />
-        <Table.Column dataIndex="pendingAmount" title="Pendiente" render={(v) => formatUSD(v)} />
+        <Table.Column
+          dataIndex="pendingAmount"
+          title="Pendiente"
+          render={(v) => (
+            <span style={{ color: v < 0 ? "#ff4d4f" : v > 0 ? "#faad14" : "#52c41a" }}>
+              {formatUSD(v)}
+            </span>
+          )}
+        />
         <Table.Column
           dataIndex="status"
           title="Estado"

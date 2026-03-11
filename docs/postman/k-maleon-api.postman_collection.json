@@ -252,6 +252,54 @@
               "options": { "raw": { "language": "json" } }
             }
           }
+        },
+        {
+          "name": "Deposit",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/account/deposit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "account", "deposit"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1000000,\n  \"date\": \"2026-03-11\",\n  \"description\": \"Fondeo inicial marzo\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Get Deposits",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/account/deposits",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "account", "deposits"]
+            }
+          }
+        },
+        {
+          "name": "Get Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/account/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "account", "summary"]
+            }
+          }
         }
       ]
     },

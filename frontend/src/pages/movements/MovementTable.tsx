@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Table, Tag, Button, Tooltip, Card, List, Typography, Grid } from "antd";
 import { FileTextOutlined } from "@ant-design/icons";
+import { DateField } from "@refinedev/antd";
 import { Movement, MovementType } from "../../types/movement";
 import { formatUSD } from "../../utils/money";
 import { apiUrl, fetchJson } from "../../providers/data";
@@ -29,7 +30,9 @@ export const MovementTable = ({ operationId }: Props) => {
 
   const screens = useBreakpoint();
   const isMobile = !screens.md;
-  const movements = data ?? [];
+  const movements = (data ?? []).slice().sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
 
   if (isMobile) {
     return (
@@ -87,7 +90,18 @@ export const MovementTable = ({ operationId }: Props) => {
 
   return (
     <Table dataSource={movements} loading={isLoading} rowKey="id" pagination={false}>
-      <Table.Column dataIndex="date" title="Fecha" />
+      <Table.Column
+        dataIndex="date"
+        title="Fecha"
+        render={(v, record: Movement) => (
+          <div>
+            <div>{v}</div>
+            <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+              <DateField value={record.createdAt} format="HH:mm" />
+            </Typography.Text>
+          </div>
+        )}
+      />
       <Table.Column
         dataIndex="type"
         title="Tipo"

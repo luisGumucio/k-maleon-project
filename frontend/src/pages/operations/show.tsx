@@ -101,7 +101,7 @@ export const OperationShow = () => {
                   title="Pendiente"
                   value={formatUSD(operation.pendingAmount)}
                   valueStyle={{
-                    color: operation.pendingAmount > 0 ? "#faad14" : "#52c41a",
+                    color: operation.pendingAmount < 0 ? "#ff4d4f" : operation.pendingAmount > 0 ? "#faad14" : "#52c41a",
                     fontSize: isMobile ? 20 : 28,
                   }}
                 />
